@@ -31,13 +31,18 @@ jobs:
           repository: ihsanrahim/My-Ihsan-Web
           ref: main
           path: site
+      - name: Get this repository (the go/ smart link)
+        uses: actions/checkout@v4
+        with:
+          path: self
       - name: Make it a mirror
         run: |
           cd site
           rm -rf .git .github CNAME
+          cp -r ../self/go ./go   # https://ihsanrahim.github.io/My-Ihsan-Wifi/go/ : myihsan.app when it can be reached, else this copy
           touch .nojekyll
           # search engines keep the main address; this copy is only a backup
-          find . -name "*.html" -print0 | xargs -0 sed -i 's|<head>|<head><meta name="robots" content="noindex"><link rel="canonical" href="https://myihsan.app/">|'
+          find . -name "*.html" -not -path "./go/*" -print0 | xargs -0 sed -i 's|<head>|<head><meta name="robots" content="noindex"><link rel="canonical" href="https://myihsan.app/">|'
           echo "{\"mirror\":true,\"from\":\"$(git -C .. ls-remote https://github.com/ihsanrahim/My-Ihsan-Web refs/heads/main 2>/dev/null | cut -c1-12)\",\"at\":\"$(date -u +%FT%TZ)\"}" > mirror.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

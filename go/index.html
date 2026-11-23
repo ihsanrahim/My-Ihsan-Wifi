@@ -1,0 +1,22 @@
+<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>My Ihsan</title><meta name="description" content="My Ihsan: opens myihsan.app, or the backup copy when this network blocks it.">
+<style>:root{color-scheme:dark}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#07130d;color:#eef5ef;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:16px;box-sizing:border-box}
+.c{max-width:340px}.l{font-size:52px}h1{font-size:22px;margin:8px 0 4px}p{color:#9db5a5;font-size:14px;line-height:1.5;margin:6px 0}
+.s{width:28px;height:28px;border:3px solid #24402f;border-top-color:#c9a646;border-radius:50%;margin:18px auto;animation:r .8s linear infinite}@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.s{animation:none}}a{color:#c9a646}.b{display:none;margin-top:14px}.b a{display:block;margin:8px 0;padding:12px;border-radius:12px;background:#11241a;text-decoration:none;font-weight:600}</style></head>
+<body><div class="c"><div class="l">🕌</div><h1>My Ihsan</h1><p id="t">Membuka… · Opening…</p><div class="s" id="s"></div>
+<div class="b" id="b"><a id="m" href="https://myihsan.app/">myihsan.app</a><a id="a" href="../">Alamat sandaran · Backup address</a></div></div>
+<script>
+/* The one link to share: https://ihsanrahim.github.io/My-Ihsan-Wifi/go/  (works on every network because github.io is trusted everywhere)
+   It checks whether myihsan.app can be reached here (2.5 s). Yes → opens myihsan.app. No (e.g. an office firewall) → opens the backup copy.
+   A page can be given after "?": …/go/?app/ opens the web app, …/go/?split/#… a split bill; the part after # is kept. */
+(function(){ "use strict";
+var p = decodeURIComponent(location.search.slice(1)).replace(/^\/+/, ""), h = location.hash || "", MAIN = "https://myihsan.app/", ALT = new URL("../", location.href).href;
+if(!/^[\w\-./]*$/.test(p)) p = "";   // only plain page paths
+var to = function(base){ location.replace(base + p + h); }, done = false, fin = function(ok){ if(done) return; done = true; to(ok ? MAIN : ALT); };
+document.getElementById("m").href = MAIN + p + h; document.getElementById("a").href = ALT + p + h;
+setTimeout(function(){ document.getElementById("b").style.display = "block"; }, 4000);
+var tm = setTimeout(function(){ fin(false); }, 2500);
+try{ fetch(MAIN + "version.json?t=" + Date.now(), {cache: "no-store", mode: "cors"}).then(function(r){ clearTimeout(tm); fin(r.ok); }).catch(function(){ clearTimeout(tm); fin(false); }); }catch(e){ fin(false); }
+})();
+</script></body></html>
