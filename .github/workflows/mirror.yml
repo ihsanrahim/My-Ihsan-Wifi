@@ -1,0 +1,47 @@
+# Backup address for My Ihsan: https://ihsanrahim.github.io/My-Ihsan-Wifi/
+# Some office or school Wi-Fi firewalls block or intercept https://myihsan.app (a newer .app address they have not
+# categorised). They trust github.io, so this repository publishes an exact copy of the live site (the main branch of
+# ihsanrahim/My-Ihsan-Web) under GitHub's own address and certificate. Nothing is edited by hand here.
+# Runs every hour, on demand (Actions › Mirror › Run workflow), and when this repository changes.
+# One-time setup: Settings › Pages › Build and deployment › Source: "GitHub Actions".
+name: Mirror
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Get the live site (My-Ihsan-Web, main)
+        uses: actions/checkout@v4
+        with:
+          repository: ihsanrahim/My-Ihsan-Web
+          ref: main
+          path: site
+      - name: Make it a mirror
+        run: |
+          cd site
+          rm -rf .git .github CNAME
+          touch .nojekyll
+          # search engines keep the main address; this copy is only a backup
+          find . -name "*.html" -print0 | xargs -0 sed -i 's|<head>|<head><meta name="robots" content="noindex"><link rel="canonical" href="https://myihsan.app/">|'
+          echo "{\"mirror\":true,\"from\":\"$(git -C .. ls-remote https://github.com/ihsanrahim/My-Ihsan-Web refs/heads/main 2>/dev/null | cut -c1-12)\",\"at\":\"$(date -u +%FT%TZ)\"}" > mirror.json
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
